@@ -5,7 +5,8 @@ using System.Text;
 using UnityEngine;
 public class Login:MonoBehaviour
     {
-    public GameObject FailUI, VictoryUI,PauseUI;
+    
+    public GameObject FailUI, VictoryUI,PauseUI,JieShaoUI;
     public void ToStarScence()
     {
         Application.LoadLevel(0);
@@ -20,6 +21,7 @@ public class Login:MonoBehaviour
     }
     public void ToFirstBattleScence()
     {
+        Time.timeScale = 1;
         Application.LoadLevel(3);
     }
     public void Pause()
@@ -27,6 +29,18 @@ public class Login:MonoBehaviour
         PauseUI.SetActive(true);
         Time.timeScale = 0;
         
+    }
+    public void Quit()
+    {
+        Application.Quit();
+    }
+    public void JieShao()
+    {
+        JieShaoUI.SetActive(true);
+    }
+    public void closeJ()
+    {
+        JieShaoUI.SetActive(false);
     }
     public void GoOn()
     {
