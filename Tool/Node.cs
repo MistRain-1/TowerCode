@@ -5,8 +5,8 @@ using UnityEngine;
 
     public class Node:MonoBehaviour
     {
-    GameObject character;
-
+    GameObject character=null;
+    
     void Start()
     {
 
@@ -22,7 +22,9 @@ using UnityEngine;
         {
             return;
         }
+      
         character = (GameObject)Instantiate(GameManage.instance.charaToSpawn, transform.position, transform.rotation);
+
     }
     }
 

@@ -24,21 +24,34 @@ using UnityEngine.UI;
     float nexttime=Time.time+1 ;
     public GameObject VictoryUI;
     public GameObject FailUI;
+    public GameObject GameAuDio;
+    Character[] chara =new Character[0];
+
     void Start()
     {
         instance = this;
     }
     void Update()
     {
+        chara = GameObject.FindObjectsOfType<Character>();
+        foreach (Character cha in chara)
+        {
+            if (cha.GetComponent<Character>().Die == true)
+            {
+                Destroy(cha);
+                charaRange++;
+            }
+        }
         if (deathCount == AllenemyCount)
         {
             Time.timeScale = 0;
+            GameAuDio.SetActive(false);
             VictoryUI.SetActive(true);
         }
         if (GoHomeCount == 0)
         {
             Time.timeScale = 0;
-                
+            GameAuDio.SetActive(false);
             FailUI.SetActive(true);
         }
         if (Time.time >= nexttime)
@@ -85,5 +98,6 @@ using UnityEngine.UI;
     public void SwitchtoSpawn(GameObject temp)
         {
         charaToSpawn = temp;
+        
         }
     }

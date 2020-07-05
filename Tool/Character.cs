@@ -3,65 +3,153 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-    class Character:MonoBehaviour
-    {
-    public float range;
+public class Character : MonoBehaviour
+{
+    //public float range;
     public float timefireCD;
-    float fireCD;
+    float fireCD = 0;
     GameObject closestEnemy;
     public int cost;
-    public bool High;
+    public bool High = false;
     public int power;
     public int blood;
     public int MaxStopCount;
-    public int StopCount;
+    public int StopCount = 0;
+    List<GameObject> enemies = new List<GameObject>();
+    GameObject EndPoint;
+    Animator Attack;
+    AudioSource AttackAudio;
+    public GameObject ButtonChara;
+    public bool Die=false;
     void Awake()
     {
         StopCount = 0;
-        if (GameManage.instance.Allcost - cost <= 0)
+        if (GameManage.instance.Allcost - cost <= 0 || GameManage.instance.charaRange <= 0)
         {
             Destroy(gameObject);
         }
+        if (transform.tag == "LowSolider")
+        {
+            GameObject[] Highblocks = GameObject.FindGameObjectsWithTag("Highblock");
+            foreach (GameObject highblock in Highblocks)
+            {
+                if (transform.position == highblock.transform.position)
+                    Destroy(gameObject);
+            }
+        }
+        if (transform.tag == "HighSolider")
+        {
+            GameObject[] Lowblocks = GameObject.FindGameObjectsWithTag("Lowblock");
+            foreach (GameObject lowblock in Lowblocks)
+            {
+                if (transform.position == lowblock.transform.position)
+                    Destroy(gameObject);
+            }
+        }
+        EndPoint = GameObject.Find("EndPoint");
 
     }
     void Start()
     {
-      
-        gameObject.GetComponent<SpriteRenderer>().sortingOrder = (int)transform.position.y;
+       
+        GameManage.instance.SwitchtoSpawn(null);
+        AttackAudio = GetComponent<AudioSource>();
+        Attack = GetComponent<Animator>();
+        gameObject.GetComponent<SpriteRenderer>().sortingOrder = -(int)transform.position.y;
         GameManage.instance.Allcost -= cost;
         GameManage.instance.charaRange -= 1;
-      
+
         InvokeRepeating("LocknShoot", 0f, 0.4f);
+    }
+    void OnTriggerEnter2D(Collider2D col)
+    {
+        if (col.tag == "Enemy")
+        {
+            enemies.Add(col.gameObject);
+        }
+    }
+    //    void OnTriggerStay2D(Collider2D col)
+    //{
+
+    //    if (col.tag=="Enemy"&&fireCD <= 0f)
+    //    {
+    //        col.GetComponent<testEnemy>().TakeDamage(power);
+    //        fireCD = timefireCD;
+    //    }
+    //    fireCD -= Time.deltaTime;
+
+    //}
+    void OnTriggerStay2D(Collider2D col)
+    {
+       
+    }
+    void OnTriggerExit2D(Collider2D col)
+    {
+        if (col.tag == "Enemy")
+        {
+            enemies.Remove(col.gameObject);
+        }
     }
     void LocknShoot()
     {
-        GameObject[] enemies=GameObject.FindGameObjectsWithTag("Enemy");
+
         float closestDis = Mathf.Infinity;
-       
-        foreach (GameObject enemy in enemies)
+        if (enemies.ToArray().Length != 0)
         {
-            float distanceToEnemy = Vector3.Distance(transform.position, enemy.transform.position);
-            if (distanceToEnemy < closestDis)
+            foreach (GameObject enemy in enemies)
             {
-                closestDis = distanceToEnemy;
-                closestEnemy = enemy;
+                float distanceToEnemy = Vector3.Distance(EndPoint.transform.position, enemy.transform.position);
+                if (distanceToEnemy < closestDis)
+                {
+                    closestDis = distanceToEnemy;
+                    closestEnemy = enemy;
+                }
             }
         }
     }
     void Update()
     {
+
+
         GetComponentInChildren<Slider>().value = blood;
-        if (fireCD <= 0f)
-        {   
-            closestEnemy.GetComponent<Enemy>().blood -= power;
-            fireCD = timefireCD;
-        }
-        if (blood == 0)
+
+        if (enemies.ToArray().Length != 0 && closestEnemy == null)
         {
-            Destroy(gameObject);
+            enemies.Remove(closestEnemy.gameObject);
         }
-        fireCD -= Time.deltaTime;
+        if (closestEnemy != null)
+        {
+            if (fireCD <= 0.25f)
+                Attack.SetBool("Attacking", true);
+            else
+                Attack.SetBool("Attacking", false);
+
+            if (fireCD <= 0f)
+            {
+                AttackAudio.Play();
+                closestEnemy.GetComponent<Enemy>().TakeDamage(power);
+                fireCD = timefireCD;
+            }
+            fireCD -= Time.deltaTime;
+        }
+        if (enemies.ToArray().Length == 0)
+        {
+            Attack.SetBool("Attacking", false);
+        }
+
+        if (blood <= 0)
+        {
+            Die = true;
+
+            transform.position = new Vector3(10000, 20000, 1);
+       
+        }
+
     }
-        
+    public void TakeDamage(int damage)
+    {
+        blood -= damage;
     }
 
+
+}

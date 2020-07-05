@@ -5,8 +5,9 @@ using System.Text;
 using UnityEngine;
 public class Login:MonoBehaviour
     {
+    public AudioSource ClickOn;
     
-    public GameObject FailUI, VictoryUI,PauseUI,JieShaoUI;
+    public GameObject FailUI, VictoryUI,PauseUI,JieShaoUI,GameAuDio,One,Two;
     public void ToStarScence()
     {
         Application.LoadLevel(0);
@@ -42,10 +43,32 @@ public class Login:MonoBehaviour
     {
         JieShaoUI.SetActive(false);
     }
+    public void Fail()
+    {
+        Time.timeScale = 0;
+        GameAuDio.SetActive(false);
+        FailUI.SetActive(true);
+    }
     public void GoOn()
     {
         PauseUI.SetActive(false);
         Time.timeScale = 1;
+    }
+    public void AudioClick()
+    {
+        ClickOn.Play();
+    }
+    public void TwoTime()
+    {
+        Time.timeScale = 2;
+        One.SetActive(false);
+        Two.SetActive(true);
+    }
+    public void OneTime()
+    {
+        Time.timeScale = 1;
+        One.SetActive(true);
+        Two.SetActive(false);
     }
 }
 
